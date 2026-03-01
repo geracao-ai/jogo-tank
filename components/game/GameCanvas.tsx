@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Platform, useWindowDimensions } from 'react-native';
 import { useGameLoop } from '@/hooks/useGameLoop';
 import { useKeyboard } from '@/hooks/useKeyboard';
 import { useMouse } from '@/hooks/useMouse';
@@ -24,9 +24,11 @@ import {
 import { Player } from './Player';
 import { Enemy } from './Enemy';
 import { Projectile } from './Projectile';
+import { TouchControls } from './TouchControls';
 
 const ARENA_WIDTH = 800;
 const ARENA_HEIGHT = 600;
+const isMobile = Platform.OS !== 'web';
 
 function createInitialState(): GameState {
   return {
@@ -56,19 +58,19 @@ function spawnEnemy(arenaWidth: number, arenaHeight: number): EnemyState {
   let x: number, y: number;
 
   switch (side) {
-    case 0: // top
+    case 0:
       x = Math.random() * (arenaWidth - ENEMY_SIZE);
       y = -ENEMY_SIZE;
       break;
-    case 1: // right
+    case 1:
       x = arenaWidth;
       y = Math.random() * (arenaHeight - ENEMY_SIZE);
       break;
-    case 2: // bottom
+    case 2:
       x = Math.random() * (arenaWidth - ENEMY_SIZE);
       y = arenaHeight;
       break;
-    default: // left
+    default:
       x = -ENEMY_SIZE;
       y = Math.random() * (arenaHeight - ENEMY_SIZE);
       break;
@@ -80,10 +82,15 @@ function spawnEnemy(arenaWidth: number, arenaHeight: number): EnemyState {
 export function GameCanvas() {
   const [gameState, setGameState] = useState<GameState>(createInitialState);
   const [started, setStarted] = useState(false);
-  const arenaRef = useRef<HTMLDivElement | null>(null);
+  const arenaRef = useRef<any>(null);
   const keys = useKeyboard();
   const mouse = useMouse(arenaRef);
   const shootCooldownRef = useRef(0);
+  const { width: screenW, height: screenH } = useWindowDimensions();
+
+  const scale = isMobile
+    ? Math.min(screenW / ARENA_WIDTH, screenH / ARENA_HEIGHT)
+    : 1;
 
   const update = useCallback(
     (dt: number) => {
@@ -106,13 +113,16 @@ export function GameCanvas() {
         px = clamp(px, 0, prev.arenaWidth - PLAYER_SIZE);
         py = clamp(py, 0, prev.arenaHeight - PLAYER_SIZE);
 
-        // --- Cannon angle (toward mouse) ---
+        // --- Cannon angle ---
         const playerCenterX = px + PLAYER_SIZE / 2;
         const playerCenterY = py + PLAYER_SIZE / 2;
-        const angle = Math.atan2(
-          m.position.y - playerCenterY,
-          m.position.x - playerCenterX
-        );
+        const angle =
+          m.overrideAngle != null
+            ? m.overrideAngle
+            : Math.atan2(
+                m.position.y - playerCenterY,
+                m.position.x - playerCenterX
+              );
 
         const player: PlayerState = {
           ...prev.player,
@@ -257,16 +267,24 @@ export function GameCanvas() {
     setStarted(true);
   }, []);
 
+  const instructionText = isMobile
+    ? 'Left side: drag to move\nRight side: drag to aim + fire'
+    : 'WASD / Arrows to move\nMouse to aim, Click / Space to shoot';
+
   return (
     <View style={styles.wrapper}>
       <View
-        ref={arenaRef as React.RefObject<View>}
-        style={styles.arena}
+        ref={arenaRef}
+        style={[
+          styles.arena,
+          isMobile && { transform: [{ scale }] },
+        ]}
       >
         <View style={styles.hud}>
           <Text style={styles.hudText}>Score: {gameState.score}</Text>
           <Text style={styles.hudText}>Lives: {'♥'.repeat(gameState.lives)}</Text>
         </View>
+
         <Player player={gameState.player} />
 
         {gameState.enemies.map((e, i) => (
@@ -280,8 +298,9 @@ export function GameCanvas() {
         {!started && !gameState.gameOver && (
           <View style={styles.overlay}>
             <Text style={styles.titleText}>TANK GAME</Text>
-            <Text style={styles.instructionText}>WASD / Arrows to move</Text>
-            <Text style={styles.instructionText}>Mouse to aim, Click / Space to shoot</Text>
+            {instructionText.split('\n').map((line, i) => (
+              <Text key={i} style={styles.instructionText}>{line}</Text>
+            ))}
             <Pressable role="button" style={styles.restartButton} onPress={handleStart}>
               <Text style={styles.restartText}>Start Game</Text>
             </Pressable>
@@ -298,6 +317,10 @@ export function GameCanvas() {
           </View>
         )}
       </View>
+
+      {isMobile && started && !gameState.gameOver && (
+        <TouchControls keysRef={keys} mouseRef={mouse} />
+      )}
     </View>
   );
 }
@@ -334,9 +357,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#334155',
     overflow: 'hidden',
-    // @ts-expect-error web-only cursor style
-    cursor: 'crosshair',
-  },
+    ...(Platform.OS === 'web' ? { cursor: 'crosshair' } : {}),
+  } as any,
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.75)',
@@ -354,6 +376,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'monospace',
     marginTop: 8,
+    textAlign: 'center',
   },
   gameOverText: {
     color: '#ef4444',

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { Platform } from 'react-native';
 import { KeysPressed } from '@/lib/game/types';
 
 const KEY_MAP: Record<string, keyof KeysPressed> = {
@@ -42,6 +43,7 @@ export function useKeyboard(): React.RefObject<KeysPressed> {
   }, []);
 
   useEffect(() => {
+    if (Platform.OS !== 'web') return;
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
     return () => {
