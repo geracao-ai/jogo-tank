@@ -44,7 +44,7 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true,
-      "baseUrl": "/jogo-tank"
+      "baseUrl": "/jogo-tank/"
     }
   }
 }
