@@ -1,50 +1,72 @@
-# Welcome to your Expo app 👋
+# 🎮 Jogo Tank
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Um jogo de batalha de tanques frenético construído com Expo e React Native. 
 
-## Get started
+## 🚀 Jogo Online
+Acesse a versão mais recente diretamente no seu navegador:
+**[https://geracao-ai.github.io/jogo-tank/](https://geracao-ai.github.io/jogo-tank/)**
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## 💻 Como Rodar Localmente (Web)
 
-2. Start the app
+Se você quiser rodar o jogo na sua máquina para testar ou desenvolver:
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+### 1. Instalar Dependências
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Rodar em Modo Desenvolvimento
+Isso abrirá o servidor Metro com suporte a hot-reload.
+```bash
+npm run web
+```
 
-## Learn more
+### 3. Build de Produção
+Para gerar os arquivos otimizados:
+```bash
+npm run build:web
+```
+Os arquivos serão gerados na pasta `dist/`.
 
-To learn more about developing your project with Expo, look at the following resources:
+### 4. Deploy para GitHub Pages
+Para atualizar automaticamente a pasta `docs/` usada pelo GitHub Pages:
+```bash
+npm run deploy
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### 5. Servir o Build Localmente
+```bash
+npx serve dist
+```
+O jogo estará disponível em `http://localhost:3000`.
 
-## Join the community
+---
 
-Join our community of developers creating universal apps.
+## 📱 Rodar no Android
+Para instruções detalhadas de como compilar e instalar no Android (APK), consulte o arquivo:
+👉 [SETUP.md](./SETUP.md)
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+## 🛠️ Controles
+
+| Ação | Web | Android |
+|---|---|---|
+| **Mover** | `WASD` ou Setas | Joystick Esquerdo |
+| **Mirar** | Mouse | Joystick Direito |
+| **Atirar** | Clique ou `Espaço` | Joystick Direito (Toque/Soltar) |
+
+---
+
+## 🏗️ Estrutura do Projeto
+
+- `app/`: Roteamento e telas principais.
+- `components/game/`: Lógica visual do jogo (Tanque, Inimigos, Projéteis).
+- `hooks/`: Gerenciamento de loops e entradas (teclado/mouse).
+- `lib/game/`: Lógica matemática e física de colisões.
+
+---
+
+Desenvolvido com ❤️ usando **Expo** e **React Native Web**.
